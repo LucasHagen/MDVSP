@@ -1,0 +1,15 @@
+data;
+
+set DEPOTS 	:= D1 D2;
+
+set TRAVELS := T1 T2;
+
+param maxbus := D1 1
+				D2 1;
+
+# Row -> Column
+param M :			D1		D2		T1		T2 :=
+			D1		-1		-1		1		-1
+			D2		-1		-1		-1		1
+			T1		1		1		-1		-1
+			T2		-1		1		1.5		-1 ;
