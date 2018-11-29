@@ -1,0 +1,13 @@
+data;
+
+set DEPOTS := {depots};
+
+set TRIPS  := {trips};
+
+param maxbus := {maxbus};
+
+param M : {mheader} :=
+
+{mlines} ;
+
+end;
