@@ -21,7 +21,7 @@ def ReadInstance(fileName):
         tripToDepot[t] = [ x for x in rawText[0].split("\t")[:nDepots] ]
         tripToTrip[t] = [ x for x in rawText[0].split("\t")[nDepots:-1] ]
         rawText.pop(0)
-    if(rawText == []):
+    if(rawText != []):
         raise Exception("Not a valid instance: first line probably has wrong info.")
-    return()
+    return(nDepots, nTrips, maxBus, depotToTrip, tripToDepot, tripToTrip)
 
