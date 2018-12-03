@@ -79,7 +79,7 @@ class Solution():
     def selectDepot(self):
         selectedDepot = -1
         while(selectedDepot == -1):
-            selectedDepot = random.randint(0, self.numBus)
+            selectedDepot = random.randint(0, len(self.numBus)-1)
             if(self.numBus[selectedDepot] > 0):
                 self.numBus[selectedDepot] -= 1
             else:
