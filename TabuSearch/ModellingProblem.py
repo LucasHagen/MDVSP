@@ -37,7 +37,7 @@ class Solution():
         candidates = [0] * self.nTrips #Candidates = list of trips that have not been visited yet by any bus!
         nCandidates = self.nTrips
 
-        while(nCandidates != 0)
+        while(nCandidates != 0):
             nextCandidate = random.randint(0, nCandidates-1)  #We get a random candidate from the list
             self.listOfTripsPerBus.append(ListBus(nextCandidate))
             nCandidates -= 1
@@ -52,7 +52,7 @@ class Solution():
             self.value += self.depotToTrip[selectedDepot][nextCandidate]
             
             endOfGraph = False
-            while(not endOfGraph)
+            while(not endOfGraph):
                 allValuesCandidate = self.tripToTrip[nextCandidate]
                 allValuesCandidate = transformListToTuple(allValuesCandidate)
 
@@ -76,11 +76,11 @@ class Solution():
 
         #Now, we need to check all the trips that we can get going from nextCandidate:
     
-    def selectDepot():
+    def selectDepot(self):
         selectedDepot = -1
-        while(selectedDepot == -1)
-            selectedBus = random.randint(0, self.numBus)
-            if(self.numBus[selectedDepot] > 0)
+        while(selectedDepot == -1):
+            selectedDepot = random.randint(0, self.numBus)
+            if(self.numBus[selectedDepot] > 0):
                 self.numBus[selectedDepot] -= 1
             else:
                 if(min(self.numBus) == 0):
