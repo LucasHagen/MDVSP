@@ -1,5 +1,6 @@
 import numpy as np
 import random
+from operator import itemgetter
 
 class ListBus():
     def __init__(self, firstTrip: int):
@@ -16,7 +17,7 @@ class Solution():
     def __init__(self, nDepots: int, nTrips: int, maxBus: list, depotToTrip: np.ndarray, tripToDepot: np.ndarray, tripToTrip: np.ndarray):
         self.nDepots = nDepots
         self.nTrips = nTrips
-        self.maxBus = maxBus
+        self.numBus = maxBus
         
         self.depotToTrip = depotToTrip
         self.tripToTrip = tripToTrip
@@ -33,46 +34,62 @@ class Solution():
     def generateConstructiveSolution(self, seedSolution):
         random.seed(seedSolution)
 
-        candidates = [n for n in range(self.nTrips)] #Candidates = list of trips that have not been visited yet by any bus!
+        candidates = [0] * self.nTrips #Candidates = list of trips that have not been visited yet by any bus!
+        nCandidates = self.nTrips
 
-        while(candidates != [])
-            nextCandidate = candidates.pop(random.randint(0, len(candidates)))  #We get a random candidate from the list
+        while(nCandidates != 0)
+            nextCandidate = random.randint(0, nCandidates-1)  #We get a random candidate from the list
             self.listOfTripsPerBus.append(ListBus(nextCandidate))
+            nCandidates -= 1
+            candidates[nextCandidate] = 1
             
+            selectedDepot = self.selectDepot()
+
+            self.listOfTripsPerBus[-1].insertNewDepot(selectedDepot)
             
-                costOfTripsFromActual = tripToTrip[actualTrip]
-                reachableTrips = [n for n in costOfTripsFromActual if n > 0]
-                minValue = -1
+            self.solutionDepots[selectedDepot][nextCandidate] = 1
 
-                while(reachableTrips != [] or minValue != -1):
-                    if reachableTrips.index(min(reachableTrips)) in candidates:
-                        minValue = min(reachableTrips)
-                
-                
-                
-                
-
-
-
-
+            self.value += self.depotToTrip[selectedDepot][nextCandidate]
             
+            endOfGraph = False
+            while(not endOfGraph)
+                allValuesCandidate = self.tripToTrip[nextCandidate]
+                allValuesCandidate = transformListToTuple(allValuesCandidate)
+
+                candidateCanAccess = [n for n in allValuesCandidate if n[0] > 0]
+                notBeenChosen = [n for n in candidateCanAccess if candidates[n[1]] == 0]
+                
+                if(notBeenChosen == []):
+                    self.value += self.tripToDepot[selectedDepot][nextCandidate]
+                    endOfGraph = True
+                
+                else:
+                    oldCandidate = nextCandidate
+                    nextCandidate = random.randint(0,len(notBeenChosen)-1)
+                    self.listOfTripsPerBus[-1].insertNewTrip(nextCandidate)
+                    nCandidates-=1
+                    candidates[nextCandidate] = 1
+                    self.value += self.tripToTrip[oldCandidate][nextCandidate]
+
+
             
 
         #Now, we need to check all the trips that we can get going from nextCandidate:
     
-
-    def whichTripCanGo(self, actualTrip: int, candidates):
-        """
-        Returns the trip we will go next and the value we will increment in it
-        Returns: (nextTrip: int, valueToIncrease: int)
-        """
-        costOfTripsFromActual = tripToTrip[actualTrip]
-
-
-
-    
-
+    def selectDepot():
+        selectedDepot = -1
+        while(selectedDepot == -1)
+            selectedBus = random.randint(0, self.numBus)
+            if(self.numBus[selectedDepot] > 0)
+                self.numBus[selectedDepot] -= 1
+            else:
+                if(min(self.numBus) == 0):
+                    raise Exception("Problem: Not enough busses")
+        return selectedDepot
 
 
-        
-            
+def transformListToTuple(listToTransform):
+    newList = []
+    for i in range(len(listToTransform)):
+        newList.append((listToTransform[i], i))
+    return newList
