@@ -6,6 +6,7 @@ param maxbus{d in DEPOTS};
 param M{i in N, j in N};
 
 var x{k in DEPOTS, i in N, j in N} binary;
+var S >= 0;
 
 minimize cost: sum{k in DEPOTS, i in N, j in N} (x[k,i,j] * M[i,j]);
 
@@ -20,5 +21,8 @@ s.t. ALL_TRIPS {j in TRIPS}: sum{k in DEPOTS} x[k,k,j] + sum{k in DEPOTS, i in T
 
 # Make sure all paths are continuous and all busses return to depot
 s.t. CONTINUOUS {k in DEPOTS, n in TRIPS}: sum{i in TRIPS} x[k,i,n] + x[k,k,n] = sum{j in TRIPS} x[k,n,j] + x[k,n,k];
+
+# Count busses
+s.t. COUNT_S: sum{k in DEPOTS, j in TRIPS} x[k,k,j] = S;
 
 end;
