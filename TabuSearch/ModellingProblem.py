@@ -108,6 +108,7 @@ class Solution():
             changeTripIndex = random.randint(0, len(self.listOfTripsPerBus[changePath].path)-1)
             
             while(self.listOfTripsPerBus[changePath].path[changeTripIndex] in tabuList):
+                changePath = random.randint(0, len(self.listOfTripsPerBus)-1)
                 changeTripIndex = random.randint(0, len(self.listOfTripsPerBus[changePath].path)-1)
             
             #--------------------- CASE: IF IT'S THE FIRST BUS THAT NEEDS TO BE REMOVED-----------------------
@@ -208,8 +209,14 @@ class Solution():
 
         return changeTrip
 
-                    
-
+    def cloneSolution(self):
+        clone = Solution(self.nDepots, self.nTrips, self.maxBus, self.depotToTrip, self.tripToDepot, self.tripToTrip)
+        for i in range(len(self.numBus)):
+            clone.numBus[i] = self.numBus[i]
+        clone.value = self.value
+        for i in self.listOfTripsPerBus:
+            clone.listOfTripsPerBus.append(i)
+        return clone
 
 
 def transformListToTuple(listToTransform):
