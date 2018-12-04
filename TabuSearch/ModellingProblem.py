@@ -141,6 +141,25 @@ class Solution():
                         self.value -= self.tripToTrip[beforeToChange][changeTrip]
                         self.value += self.tripToTrip[beforeToChange][afterToChange]
                         validPathToChange = True
+        
+        # Union of paths
+        possiblePaths = []
+        for i in range(len(self.listOfTripsPerBus)):
+            if(self.tripToTrip[changeTrip][self.listOfTripsPerBus[i].path[-1]] > 0):
+                possiblePaths.append(i)
+        if(possiblePaths != []):   
+            destroyPath = random.randint(0, len(possiblePaths)-1)
+            destroyPath = possiblePaths[destroyPath]
+
+            self.value -= self.depotToTrip[self.listOfTripsPerBus[destroyPath].depot][self.listOfTripsPerBus[destroyPath].path[0]]
+            self.value -= self.tripToDepot[self.listOfTripsPerBus[destroyPath].path[-1]][self.listOfTripsPerBus[destroyPath].depot]
+            self.value += self.tripToDepot[self.listOfTripsPerBus[destroyPath].path[-1]][self.listOfTripsPerBus[changePath].depot]
+            self.value += self.tripToTrip[self.listOfTripsPerBus[changePath].path[-1]][self.listOfTripsPerBus[destroyPath].path[0]]
+            for i in self.listOfTripsPerBus[destroyPath].path:
+                self.listOfTripsPerBus[changePath].insertNewTrip(i)
+            self.numBus[self.listOfTripsPerBus[destroyPath].depot] += 1
+            self.listOfTripsPerBus.pop(destroyPath)
+
         return changeTrip
 
                     
