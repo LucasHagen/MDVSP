@@ -37,7 +37,7 @@ class Solution():
         candidates = [0] * self.nTrips #Candidates = list of trips that have not been visited yet by any bus!
         nCandidates = self.nTrips
 
-        while(nCandidates != 0):
+        while(nCandidates > 0):
             nextCandidate = random.randint(0, nCandidates-1)  #We get a random candidate from the list
             self.listOfTripsPerBus.append(ListBus(nextCandidate))
             nCandidates -= 1
@@ -58,23 +58,19 @@ class Solution():
 
                 candidateCanAccess = [n for n in allValuesCandidate if n[0] > 0]
                 notBeenChosen = [n for n in candidateCanAccess if candidates[n[1]] == 0]
-                
                 if(notBeenChosen == []):
-                    self.value += self.tripToDepot[selectedDepot][nextCandidate]
+                    self.value += self.tripToDepot[nextCandidate][selectedDepot]
                     endOfGraph = True
                 
                 else:
                     oldCandidate = nextCandidate
                     nextCandidate = random.randint(0,len(notBeenChosen)-1)
+                    nextCandidate = notBeenChosen[nextCandidate][1]
                     self.listOfTripsPerBus[-1].insertNewTrip(nextCandidate)
                     nCandidates-=1
                     candidates[nextCandidate] = 1
                     self.value += self.tripToTrip[oldCandidate][nextCandidate]
 
-
-            
-
-        #Now, we need to check all the trips that we can get going from nextCandidate:
     
     def selectDepot(self):
         selectedDepot = -1
@@ -83,7 +79,7 @@ class Solution():
             if(self.numBus[selectedDepot] > 0):
                 self.numBus[selectedDepot] -= 1
             else:
-                if(min(self.numBus) == 0):
+                if(max(self.numBus) == 0):
                     raise Exception("Problem: Not enough busses")
         return selectedDepot
 
