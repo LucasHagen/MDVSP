@@ -110,10 +110,53 @@ class Solution():
             while(self.listOfTripsPerBus[changePath].path[changeTripIndex] in tabuList):
                 changeTripIndex = random.randint(0, len(self.listOfTripsPerBus[changePath].path)-1)
             
+            #--------------------- CASE: IF IT'S THE FIRST BUS THAT NEEDS TO BE REMOVED-----------------------
             if (changeTripIndex == 0):   #Special case
-                pass
+
+                if(len(self.listOfTripsPerBus[changePath].path) == 1): #---------------------- CASE: IF IT'S THE ONLY BUS TO REMOVE
+                    
+                    changeTrip = self.listOfTripsPerBus[changePath].path[changeTripIndex]
+                    possiblePaths = []
+                    for i in range(len(self.listOfTripsPerBus)):
+                        if(self.tripToTrip[self.listOfTripsPerBus[i].path[-1]][changeTrip] > 0):
+                            possiblePaths.append(i)
+                    
+                    if(possiblePaths != []):
+                        newPath = random.randint(0, len(possiblePaths)-1)
+                        newPath = possiblePaths[newPath]
+                        validPathToChange = True
+
+
+                else: # ------------------------------------------ CASE: THERE ARE MORE THAN ONE BUS, BUT WE'LL REMOVE THE FIRST
+                    afterToChange = self.listOfTripsPerBus[changePath].path[changeTripIndex+1]
+                    changeTrip = self.listOfTripsPerBus[changePath].path[changeTripIndex]
+                    possiblePaths = []
+                
+                    for i in range(len(self.listOfTripsPerBus)):
+                        if(self.tripToTrip[self.listOfTripsPerBus[i].path[-1]][changeTrip] > 0):
+                            possiblePaths.append(i)
+
+                    if(possiblePaths != []):
+                        newPath = random.randint(0, len(possiblePaths)-1)
+                        newPath = possiblePaths[newPath]
+
+                        self.value -= self.tripToTrip[changeTrip][afterToChange]
+                        self.value -= self.depotToTrip[self.listOfTripsPerBus[changePath].depot][changeTrip]
+                        self.value += self.depotToTrip[self.listOfTripsPerBus[changePath].depot][afterToChange]
+
+                        self.value -= self.tripToDepot[self.listOfTripsPerBus[newPath].path[-1]][self.listOfTripsPerBus[newPath].depot]
+                        self.value += self.tripToDepot[changeTrip][self.listOfTripsPerBus[newPath].depot]
+                        self.value += self.tripToTrip[self.listOfTripsPerBus[newPath].path[-1]][changeTrip]
+
+                        self.listOfTripsPerBus[changePath].path.pop(changeTripIndex)
+                        self.listOfTripsPerBus[newPath].insertNewTrip(changeTrip)
+                        validPathToChange = True
+
+            #---------------------------- CASE: WE WANT TO REMOVE THE LAST BUS
             elif (changeTripIndex == len(self.listOfTripsPerBus[changePath].path)-1):  #Special case
                 pass
+            
+            #---------------------------- CASE: WE'LL REMOVE SOME BUS
             else:
 
                 beforeToChange = self.listOfTripsPerBus[changePath].path[changeTripIndex-1]
