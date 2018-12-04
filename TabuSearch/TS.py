@@ -5,7 +5,7 @@ from ModellingProblem import Solution
 nDepots, nTrips, maxBus, depotToTrip, tripToDepot, tripToTrip = ReadInstance("./TabuSearch/instances-inp/m4n500s2.inp")
 
 
-random.seed(5643877)
+random.seed(564387)
 
 for i in range(1):
     try:

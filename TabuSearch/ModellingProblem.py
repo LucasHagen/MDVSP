@@ -190,9 +190,12 @@ class Solution():
         for i in range(len(self.listOfTripsPerBus)):
             if(self.tripToTrip[changeTrip][self.listOfTripsPerBus[i].path[-1]] > 0):
                 possiblePaths.append(i)
-        if(possiblePaths != []):   
+        if(possiblePaths != [] and len(possiblePaths) > 1):   
             destroyPath = random.randint(0, len(possiblePaths)-1)
             destroyPath = possiblePaths[destroyPath]
+            while(destroyPath == changePath):
+                destroyPath = random.randint(0, len(possiblePaths)-1)
+                destroyPath = possiblePaths[destroyPath]
 
             self.value -= self.depotToTrip[self.listOfTripsPerBus[destroyPath].depot][self.listOfTripsPerBus[destroyPath].path[0]]
             self.value -= self.tripToDepot[self.listOfTripsPerBus[destroyPath].path[-1]][self.listOfTripsPerBus[destroyPath].depot]
