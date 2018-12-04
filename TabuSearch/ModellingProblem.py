@@ -1,6 +1,5 @@
 import numpy as np
 import random
-from operator import itemgetter
 
 class ListBus():
     def __init__(self, firstTrip: int):
@@ -17,22 +16,19 @@ class Solution():
     def __init__(self, nDepots: int, nTrips: int, maxBus: list, depotToTrip: np.ndarray, tripToDepot: np.ndarray, tripToTrip: np.ndarray):
         self.nDepots = nDepots
         self.nTrips = nTrips
-        self.numBus = maxBus
-        
+        self.numBus = [n for n in maxBus]
+        self.maxBus = [n for n in maxBus]
+
         self.depotToTrip = depotToTrip
         self.tripToTrip = tripToTrip
         self.tripToDepot = tripToDepot
-
-        self.solutionDepots = np.zeros(shape = (nDepots, nTrips), dtype = int)  #Represents if a bus is going out of the depot to a trip. Initially has only zeros, and has binary values
-        self.solutionTrips = np.zeros(shape = (nTrips, nTrips), dtype = int)    #Represents if a bus is going from a trip to another one.
         
         self.value = 0 
         
         self.listOfTripsPerBus = []
-        
 
-    def generateConstructiveSolution(self, seedSolution):
-        random.seed(seedSolution)
+    def generateConstructiveSolution(self):
+        print("Generating new solution:")
 
         candidates = [0] * self.nTrips #Candidates = list of trips that have not been visited yet by any bus!
         nCandidates = self.nTrips
@@ -47,8 +43,6 @@ class Solution():
 
             self.listOfTripsPerBus[-1].insertNewDepot(selectedDepot)
             
-            self.solutionDepots[selectedDepot][nextCandidate] = 1
-
             self.value += self.depotToTrip[selectedDepot][nextCandidate]
             
             endOfGraph = False
@@ -79,12 +73,78 @@ class Solution():
                 self.numBus[selectedDepot] -= 1
             else:
                 if(max(self.numBus) == 0):
+                    print("Error creating instance, creating another instead")
                     raise Exception("Problem: Not enough busses")
         return selectedDepot
     
+    def getNumOfBus(self):
+        return((sum(self.maxBus) - sum(self.numBus)))
+    
     #------------------------------------------------------------------#
 
-    def getNeighbor()
+    def getNeighbor(self, tabuList: list):
+        if (random.randint(0, 100) > 96):
+            changePath = random.randint(0, len(self.listOfTripsPerBus)-1)
+            changeDepot = -1
+            while(changeDepot < 0):
+                checkDepot = random.randint(0, self.nDepots-1)
+                if(checkDepot != self.listOfTripsPerBus[changeDepot].depot):
+                    changeDepot = checkDepot
+                    oldDepot = self.listOfTripsPerBus[changePath].depot
+                    firstOfPath = self.listOfTripsPerBus[changePath].path[0]
+                    lastOfPath = self.listOfTripsPerBus[changePath].path[-1]
+                    
+                    self.value -= self.depotToTrip[oldDepot][firstOfPath]
+                    self.value -= self.tripToDepot[lastOfPath][oldDepot]
+                    self.value += self.depotToTrip[changeDepot][firstOfPath]
+                    self.value += self.tripToDepot[lastOfPath][changeDepot]
+                    
+                    self.listOfTripsPerBus[changeDepot].insertNewDepot(changeDepot)
+        
+        validPathToChange = False
+        while(not validPathToChange):
+            changePath = random.randint(0, len(self.listOfTripsPerBus)-1)
+
+            changeTripIndex = random.randint(0, len(self.listOfTripsPerBus[changePath].path)-1)
+            
+            while(self.listOfTripsPerBus[changePath].path[changeTripIndex] in tabuList):
+                changeTripIndex = random.randint(0, len(self.listOfTripsPerBus[changePath].path)-1)
+            
+            if (changeTripIndex == 0):   #Special case
+                pass
+            elif (changeTripIndex == len(self.listOfTripsPerBus[changePath].path)-1):  #Special case
+                pass
+            else:
+
+                beforeToChange = self.listOfTripsPerBus[changePath].path[changeTripIndex-1]
+                afterToChange = self.listOfTripsPerBus[changePath].path[changeTripIndex+1]
+                changeTrip = self.listOfTripsPerBus[changePath].path[changeTripIndex]
+
+                if(self.tripToTrip[beforeToChange][afterToChange] > 0):
+
+                    possiblePaths = []
+                    for i in range(len(self.listOfTripsPerBus)):
+                        if(self.tripToTrip[self.listOfTripsPerBus[i].path[-1]][changeTrip] > 0):
+                            possiblePaths.append(i)        
+                    if(possiblePaths != []):
+                        newPath = random.randint(0, len(possiblePaths)-1)
+                        newPath = possiblePaths[newPath]
+                            
+                        self.value += self.tripToTrip[self.listOfTripsPerBus[newPath].path[-1]][changeTrip]
+                        self.value -= self.tripToDepot[self.listOfTripsPerBus[newPath].path[-1]][self.listOfTripsPerBus[newPath].depot]
+                        self.value += self.tripToDepot[changeTrip][self.listOfTripsPerBus[newPath].depot]
+                        self.listOfTripsPerBus[changePath].path.pop(changeTripIndex)
+                        self.listOfTripsPerBus[newPath].insertNewTrip(changeTrip)
+                            
+
+                        self.value -= self.tripToTrip[changeTrip][afterToChange]
+                        self.value -= self.tripToTrip[beforeToChange][changeTrip]
+                        self.value += self.tripToTrip[beforeToChange][afterToChange]
+                        validPathToChange = True
+        return changeTrip
+
+                    
+
 
 
 def transformListToTuple(listToTransform):
