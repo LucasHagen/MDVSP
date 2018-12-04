@@ -70,7 +70,6 @@ class Solution():
                     nCandidates-=1
                     candidates[nextCandidate] = 1
                     self.value += self.tripToTrip[oldCandidate][nextCandidate]
-
     
     def selectDepot(self):
         selectedDepot = -1
@@ -82,6 +81,10 @@ class Solution():
                 if(max(self.numBus) == 0):
                     raise Exception("Problem: Not enough busses")
         return selectedDepot
+    
+    #------------------------------------------------------------------#
+
+    def getNeighbor()
 
 
 def transformListToTuple(listToTransform):
