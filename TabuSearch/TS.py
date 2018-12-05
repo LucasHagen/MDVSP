@@ -22,8 +22,8 @@ def runTabuSearch(dataPath, nTests, nNeighbors, seed):
             best = Solution(nDepots, nTrips, maxBus, depotToTrip, tripToDepot, tripToTrip)
             best.generateConstructiveSolution()
 
-            print("Iteration {}".format(i))
-            print(" - First Solution: {} with {} busses".format(best.value, best.getNumOfBus()))
+            print("{}".format(i), end='    ')
+            print("{}".format(best.value), end='    ')
 
             tabu = [0] * nNeighbors
             clone = [0] * nNeighbors
@@ -55,9 +55,8 @@ def runTabuSearch(dataPath, nTests, nNeighbors, seed):
                 allBestBus = best.getNumOfBus()
 
 
-            print(" - Best  Solution: {} with {} busses".format(best.value, best.getNumOfBus()))
-            print(" - Done in {} seconds".format(int(time.time() - execTime)))
-            print()
+            print("{}".format(best.value), end='    ')
+            print("{0:.2f}".format(time.time() - execTime))
             i+=1
 
         except Exception:
