@@ -1,24 +1,30 @@
 set DEPOTS;
 set TRIPS;
-set N := (DEPOTS union TRIPS);
 
-param maxbus{d in DEPOTS};
-param M{i in N, j in N};
+set ALL := DEPOTS union TRIPS;
 
-var x{k in DEPOTS, i in N, j in N}, >= 0, <= 1;
+param M{ALL,ALL};
 
-minimize cost: sum{k in DEPOTS, i in N, j in N} (x[k,i,j] * M[i,j]);
+set V{k in DEPOTS} := {k} union TRIPS;
 
-# Make sure only possible paths (M[i,j] != -1) are selected
-s.t. POSSIBLE_PATHS {k in DEPOTS, i in N, j in N}: (x[k,i,j] * M[i,j]) >= 0;
+set A{k in DEPOTS} within {ALL,ALL} :=
+          setof{j in TRIPS : M[k,j] > 0} (k,j) union
+          setof{i in TRIPS : M[i,k] > 0} (i,k) union
+          setof{i in TRIPS, j in TRIPS : M[i,j] > 0} (i,j);
 
-# Maximum busses per depot
-s.t. MAX_BUSSES {k in DEPOTS}: sum{j in TRIPS} x[k,k,j] <= maxbus[k];
+param maxbus{k in DEPOTS};
 
-# One bus for each trip
-s.t. ALL_TRIPS {j in TRIPS}: sum{k in DEPOTS} x[k,k,j] + sum{k in DEPOTS, i in TRIPS} x[k,i,j] = 1;
+# If is used
+var X{k in DEPOTS,(i,j) in A[k]}, >= 0, <= 1;
 
-# Make sure all paths are continuous and all busses return to depot
-s.t. CONTINUOUS {k in DEPOTS, n in TRIPS}: sum{i in TRIPS} x[k,i,n] + x[k,k,n] = sum{j in TRIPS} x[k,n,j] + x[k,n,k];
+minimize cost: sum{k in DEPOTS, (i,j) in A[k]} X[k,i,j] * M[i,j];
+
+s.t. ALL_TRIPS {j in TRIPS}: sum{k in DEPOTS, (i,j) in A[k]} X[k,i,j] = 1;
+
+s.t. MAX_BUS {k in DEPOTS}: sum{(k,j) in A[k]} X[k,k,j] <= maxbus[k];
+
+s.t. FLOW {k in DEPOTS, v in V[k]}:
+    sum{(i,v) in A[k]} X[k,i,v] =
+    sum{(v,j) in A[k]} X[k,v,j];
 
 end;

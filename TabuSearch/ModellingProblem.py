@@ -5,10 +5,10 @@ class ListBus():
     def __init__(self, firstTrip: int):
         self.depot = -1 #Not decided yet
         self.path = [firstTrip]
-    
+
     def insertNewTrip(self, trip: int):
         self.path.append(trip)
-    
+
     def insertNewDepot(self, depot: int):
         self.depot = depot
 
@@ -22,13 +22,13 @@ class Solution():
         self.depotToTrip = depotToTrip
         self.tripToTrip = tripToTrip
         self.tripToDepot = tripToDepot
-        
-        self.value = 0 
-        
+
+        self.value = 0
+
         self.listOfTripsPerBus = []
 
     def generateConstructiveSolution(self):
-        print("Generating new solution:")
+        #print("Generating new solution:")
 
         candidates = [0] * self.nTrips #Candidates = list of trips that have not been visited yet by any bus!
         nCandidates = self.nTrips
@@ -38,13 +38,13 @@ class Solution():
             self.listOfTripsPerBus.append(ListBus(nextCandidate))
             nCandidates -= 1
             candidates[nextCandidate] = 1
-            
+
             selectedDepot = self.selectDepot()
 
             self.listOfTripsPerBus[-1].insertNewDepot(selectedDepot)
-            
+
             self.value += self.depotToTrip[selectedDepot][nextCandidate]
-            
+
             endOfGraph = False
             while(not endOfGraph):
                 allValuesCandidate = self.tripToTrip[nextCandidate]
@@ -55,7 +55,7 @@ class Solution():
                 if(notBeenChosen == []):
                     self.value += self.tripToDepot[nextCandidate][selectedDepot]
                     endOfGraph = True
-                
+
                 else:
                     oldCandidate = nextCandidate
                     nextCandidate = random.randint(0,len(notBeenChosen)-1)
@@ -64,7 +64,7 @@ class Solution():
                     nCandidates-=1
                     candidates[nextCandidate] = 1
                     self.value += self.tripToTrip[oldCandidate][nextCandidate]
-    
+
     def selectDepot(self):
         selectedDepot = -1
         while(selectedDepot == -1):
@@ -73,13 +73,13 @@ class Solution():
                 self.numBus[selectedDepot] -= 1
             else:
                 if(max(self.numBus) == 0):
-                    print("Error creating instance, creating another instead")
+                    #print("Error creating instance, creating another instead")
                     raise Exception("Problem: Not enough busses")
         return selectedDepot
-    
+
     def getNumOfBus(self):
         return((sum(self.maxBus) - sum(self.numBus)))
-    
+
     #------------------------------------------------------------------#
 
     def getNeighbor(self, tabuList: list):
@@ -93,35 +93,35 @@ class Solution():
                     oldDepot = self.listOfTripsPerBus[changePath].depot
                     firstOfPath = self.listOfTripsPerBus[changePath].path[0]
                     lastOfPath = self.listOfTripsPerBus[changePath].path[-1]
-                    
+
                     self.value -= self.depotToTrip[oldDepot][firstOfPath]
                     self.value -= self.tripToDepot[lastOfPath][oldDepot]
                     self.value += self.depotToTrip[changeDepot][firstOfPath]
                     self.value += self.tripToDepot[lastOfPath][changeDepot]
-                    
+
                     self.listOfTripsPerBus[changeDepot].insertNewDepot(changeDepot)
-        
+
         validPathToChange = False
         while(not validPathToChange):
             changePath = random.randint(0, len(self.listOfTripsPerBus)-1)
 
             changeTripIndex = random.randint(0, len(self.listOfTripsPerBus[changePath].path)-1)
-            
+
             while(self.listOfTripsPerBus[changePath].path[changeTripIndex] in tabuList):
                 changePath = random.randint(0, len(self.listOfTripsPerBus)-1)
                 changeTripIndex = random.randint(0, len(self.listOfTripsPerBus[changePath].path)-1)
-            
+
             #--------------------- CASE: IF IT'S THE FIRST BUS THAT NEEDS TO BE REMOVED-----------------------
             if (changeTripIndex == 0):   #Special case
 
                 if(len(self.listOfTripsPerBus[changePath].path) == 1): #---------------------- CASE: IF IT'S THE ONLY BUS TO REMOVE
-                    
+
                     changeTrip = self.listOfTripsPerBus[changePath].path[changeTripIndex]
                     possiblePaths = []
                     for i in range(len(self.listOfTripsPerBus)):
                         if(self.tripToTrip[self.listOfTripsPerBus[i].path[-1]][changeTrip] > 0):
                             possiblePaths.append(i)
-                    
+
                     if(possiblePaths != []):
                         newPath = random.randint(0, len(possiblePaths)-1)
                         newPath = possiblePaths[newPath]
@@ -132,7 +132,7 @@ class Solution():
                     afterToChange = self.listOfTripsPerBus[changePath].path[changeTripIndex+1]
                     changeTrip = self.listOfTripsPerBus[changePath].path[changeTripIndex]
                     possiblePaths = []
-                
+
                     for i in range(len(self.listOfTripsPerBus)):
                         if(self.tripToTrip[self.listOfTripsPerBus[i].path[-1]][changeTrip] > 0):
                             possiblePaths.append(i)
@@ -156,7 +156,7 @@ class Solution():
             #---------------------------- CASE: WE WANT TO REMOVE THE LAST BUS
             elif (changeTripIndex == len(self.listOfTripsPerBus[changePath].path)-1):  #Special case
                 pass
-            
+
             #---------------------------- CASE: WE'LL REMOVE SOME BUS
             else:
 
@@ -169,29 +169,29 @@ class Solution():
                     possiblePaths = []
                     for i in range(len(self.listOfTripsPerBus)):
                         if(self.tripToTrip[self.listOfTripsPerBus[i].path[-1]][changeTrip] > 0):
-                            possiblePaths.append(i)        
+                            possiblePaths.append(i)
                     if(possiblePaths != []):
                         newPath = random.randint(0, len(possiblePaths)-1)
                         newPath = possiblePaths[newPath]
-                            
+
                         self.value += self.tripToTrip[self.listOfTripsPerBus[newPath].path[-1]][changeTrip]
                         self.value -= self.tripToDepot[self.listOfTripsPerBus[newPath].path[-1]][self.listOfTripsPerBus[newPath].depot]
                         self.value += self.tripToDepot[changeTrip][self.listOfTripsPerBus[newPath].depot]
                         self.listOfTripsPerBus[changePath].path.pop(changeTripIndex)
                         self.listOfTripsPerBus[newPath].insertNewTrip(changeTrip)
-                            
+
 
                         self.value -= self.tripToTrip[changeTrip][afterToChange]
                         self.value -= self.tripToTrip[beforeToChange][changeTrip]
                         self.value += self.tripToTrip[beforeToChange][afterToChange]
                         validPathToChange = True
-        
+
         # Union of paths
         possiblePaths = []
         for i in range(len(self.listOfTripsPerBus)):
             if(self.tripToTrip[changeTrip][self.listOfTripsPerBus[i].path[-1]] > 0):
                 possiblePaths.append(i)
-        if(possiblePaths != [] and len(possiblePaths) > 1):   
+        if(possiblePaths != [] and len(possiblePaths) > 1):
             destroyPath = random.randint(0, len(possiblePaths)-1)
             destroyPath = possiblePaths[destroyPath]
             while(destroyPath == changePath):

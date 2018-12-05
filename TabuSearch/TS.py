@@ -1,51 +1,66 @@
+import time
 import random
 from ReadInstance import ReadInstance
 from ModellingProblem import Solution
 
-nDepots, nTrips, maxBus, depotToTrip, tripToDepot, tripToTrip = ReadInstance("./TabuSearch/instances-inp/m4n1000s3.inp")
+#"./TabuSearch/instances-inp/m4n1000s3.inp"
+def runTabuSearch(dataPath, nTests, nNeighbors, seed):
+    nDepots, nTrips, maxBus, depotToTrip, tripToDepot, tripToTrip = ReadInstance(dataPath)
 
-nTests = 5
-nNeighbors = 5
-random.seed(564387)
+    allBest = -1
+    allBestBus = 0
 
-i = 0
-while(i < nTests):
-    try:
-        minimalValue = 999999999999999999
-        tabuList = []
-        best = Solution(nDepots, nTrips, maxBus, depotToTrip, tripToDepot, tripToTrip)
-        best.generateConstructiveSolution()
-        
-        tabu = [0] * nNeighbors
-        clone = [0] * nNeighbors
-        iterationValues = [0] * nNeighbors
+    i = 0
+    while(i < nTests):
+        random.seed(seed)
+        seed += 1
+        execTime = time.time()
+        try:
+            #execTime = time.time()
+            minimalValue = 999999999999999999
+            tabuList = []
+            best = Solution(nDepots, nTrips, maxBus, depotToTrip, tripToDepot, tripToTrip)
+            best.generateConstructiveSolution()
 
-        for j in range(1000):
-            bestChanged = False
-            for k in range(nNeighbors):
-                clone[k] = best.cloneSolution()
-                tabu[k] = clone[k].getNeighbor(tabuList)
-                iterationValues[k] = clone[k].value
+            print("Iteration {}".format(i))
+            print(" - First Solution: {} with {} busses".format(best.value, best.getNumOfBus()))
 
-            if(min(iterationValues) < minimalValue):
-                newBestIndex = iterationValues.index(min(iterationValues))
-                best = clone[newBestIndex]
-                bestChanged = True
-            
-            #if(bestChanged):
-                #tabuList.append(tabu[newBestIndex])
+            tabu = [0] * nNeighbors
+            clone = [0] * nNeighbors
+            iterationValues = [0] * nNeighbors
 
-            if(j > 20 and len(tabuList) > 0):
-                tabuList.pop(0)
-            
-            print(best.value)
-            print(best.getNumOfBus())
-        
-        print("BEST OF ITERATION: -------------------")
-        print(best.value)
-        print(best.getNumOfBus())
-        print()
-        i+=1
+            for j in range(1000):
+                bestChanged = False
+                for k in range(nNeighbors):
+                    clone[k] = best.cloneSolution()
+                    tabu[k] = clone[k].getNeighbor(tabuList)
+                    iterationValues[k] = clone[k].value
 
-    except Exception:
-        test = None
+                if(min(iterationValues) < minimalValue):
+                    newBestIndex = iterationValues.index(min(iterationValues))
+                    best = clone[newBestIndex]
+                    bestChanged = True
+
+                #if(bestChanged):
+                    #tabuList.append(tabu[newBestIndex])
+
+                if(j > 20 and len(tabuList) > 0):
+                    tabuList.pop(0)
+
+                #print(best.value)
+                #print(best.getNumOfBus())
+
+            if allBest == -1 or allBest > best.value:
+                allBest = best.value
+                allBestBus = best.getNumOfBus()
+
+
+            print(" - Best  Solution: {} with {} busses".format(best.value, best.getNumOfBus()))
+            print(" - Done in {} seconds".format(int(time.time() - execTime)))
+            print()
+            i+=1
+
+        except Exception:
+            test = None
+
+    print("Best Solution: {}, with {} busses".format(allBest, allBestBus))
